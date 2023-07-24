@@ -1,5 +1,5 @@
-const { default: makeWASocket } = require("@adiwajshing/baileys");
-const { DisconnectReason, useSingleFileAuthState } = require("@adiwajshing/baileys");
+const { default: makeWASocket } = require("@whiskeysockets/baileys");
+const { DisconnectReason, useSingleFileAuthState } = require("@whiskeysockets/baileys");
 const { state } = useSingleFileAuthState("./login.json");
 const P = require("pino");
 const fs = require("fs");
