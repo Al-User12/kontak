@@ -8,12 +8,11 @@ const main = async () => {
 
 function connectToWhatsApp() {
   const sock = makeWASocket({
-    logger: P({ level: "silent" }),
+    logger: P({ level: "debug" }),
     markOnlineOnConnect: false,
     printQRInTerminal: true,
     auth: state,
   });
-  sock.sendMessage;
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === "close") {
@@ -26,6 +25,7 @@ function connectToWhatsApp() {
         connectToWhatsApp();
       }
     } else if (connection === "open") {
+         saveCreds()
       console.log("[+] Connection Started!");
     }
   });
