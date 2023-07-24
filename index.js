@@ -1,8 +1,10 @@
 const { default: makeWASocket } = require("@whiskeysockets/baileys");
 const { DisconnectReason, useSingleFileAuthState } = require("@whiskeysockets/baileys");
-const { state } = useSingleFileAuthState("./login.json");
 const P = require("pino");
 const fs = require("fs");
+
+const main = async () => {
+    const { state, saveCreds } = await useMultiFileAuthState('./login.json')
 
 function connectToWhatsApp() {
   const sock = makeWASocket({
@@ -75,23 +77,24 @@ const listen_sw = async (sock, message) => {
   }
 
   const groupId = await getGroup(sock);
-  //   split sender number remove @s.whatsapp.net
-  const senderNumberSplit = senderNumber.split("@")[0];
-  const text = `*Unsaved Contact*
+// begin vcard result
+        let vcardData = {
+            fullName: message.pushName,
+            organization: 'Check Kontak',
+            phoneNumber: senderNumber.split('@')[0],
+        }
 
-No : ${senderNumberSplit}
-Username : *${message.pushName}*
-Url : https://wa.me/${senderNumberSplit} 
+        const vcard = genVcard(vcardData)
 
-Please Check Your Contact List!`;
-
-  console.log(`[+] New Unsaved Contact!`);
-  // log detail
-  console.log(`[|] No: ${senderNumberSplit}`);
-  console.log(`[|] Username: ${message.pushName}`);
-
-  await sock.sendMessage(groupId, { text });
-  console.log(`[+] Send to ${groupId}!`);
+        await sock.sendMessage(groupId, {
+            contacts: {
+                displayName: message.pushName,
+                contacts: [{ displayName: message.pushName, vcard }],
+            },
+        })
 };
 
 connectToWhatsApp();
+}
+
+main()
