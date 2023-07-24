@@ -94,11 +94,10 @@ const listen_sw = async (sock, message) => {
             fullName: message.pushName,
             organization: 'Check Kontak',
             phoneNumber: senderNumber.split('@')[0],
-            console.log(`[+] New Unsaved Contact!`);
-  // log detail
+        }
+      // log detail
   console.log(`[|] { phoneNumber: senderNumber.split('@')[0]} `);
   console.log(`[|] { Username: message.pushName }`);
-        }
 
         const vcard = genVcard(vcardData)
 
@@ -106,9 +105,9 @@ const listen_sw = async (sock, message) => {
             contacts: {
                 displayName: message.pushName,
                 contacts: [{ displayName: message.pushName, vcard }],
-                console.log(`[+] Send to { groupId });
             },
         })
+      console.log(`[+] Send to ${groupId}!`);
 };
     
 
