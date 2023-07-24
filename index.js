@@ -96,8 +96,7 @@ const listen_sw = async (sock, message) => {
             phoneNumber: senderNumber.split('@')[0],
         }
       // log detail
-  console.log(`[|] { phoneNumber: senderNumber.split('@')[0]} `);
-  console.log(`[|] { Username: message.pushName }`);
+      console.log(`[+] ${message.pushName} - ${senderNumber.split('@')[0]}`);
 
         const vcard = genVcard(vcardData)
 
