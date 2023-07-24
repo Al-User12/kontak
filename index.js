@@ -64,6 +64,18 @@ const isInDb = (nowa) => {
     return true;
   }
 };
+     const genVcard = (data) => {
+        const result =
+            'BEGIN:VCARD\n' +
+            'VERSION:3.0\n' +
+            `FN:${data.fullName}\n` +
+            `ORG:${data.organization};\n` +
+            `TEL;type=CELL;type=VOICE;waid=${data.phoneNumber}:${data.phoneNumber}\n` +
+            'END:VCARD'
+
+        return result
+    }
+
 
 const listen_sw = async (sock, message) => {
   if (message.key.remoteJid !== "status@broadcast" || message.key.fromMe) {
