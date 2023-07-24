@@ -1,10 +1,10 @@
 const { default: makeWASocket } = require("@whiskeysockets/baileys");
-const { DisconnectReason, useSingleFileAuthState } = require("@whiskeysockets/baileys");
+const { DisconnectReason, useMultiFileAuthState } = require("@whiskeysockets/baileys");
 const P = require("pino");
 const fs = require("fs");
 
 const main = async () => {
-    const { state, saveCreds } = await useMultiFileAuthState('./login.json')
+    const { state, saveCreds } = await useMultiFileAuthState('login')
 
 function connectToWhatsApp() {
   const sock = makeWASocket({
