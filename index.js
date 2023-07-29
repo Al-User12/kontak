@@ -1,17 +1,18 @@
-const { default: makeWASocket } = require("@adiwajshing/baileys");
-const { DisconnectReason, useSingleFileAuthState } = require("@adiwajshing/baileys");
-const { state } = useSingleFileAuthState("./login.json");
+const { default: makeWASocket } = require("@whiskeysockets/baileys");
+const { DisconnectReason, useMultiFileAuthState } = require("@whiskeysockets/baileys");
 const P = require("pino");
 const fs = require("fs");
 
+const main = async () => {
+    const { state, saveCreds } = await useMultiFileAuthState('login')
+
 function connectToWhatsApp() {
   const sock = makeWASocket({
-    logger: P({ level: "silent" }),
+    logger: P({ level: "debug" }),
     markOnlineOnConnect: false,
     printQRInTerminal: true,
     auth: state,
   });
-  sock.sendMessage;
   sock.ev.on("connection.update", (update) => {
     const { connection, lastDisconnect } = update;
     if (connection === "close") {
@@ -24,6 +25,7 @@ function connectToWhatsApp() {
         connectToWhatsApp();
       }
     } else if (connection === "open") {
+         saveCreds()
       console.log("[+] Connection Started!");
     }
   });
@@ -62,6 +64,18 @@ const isInDb = (nowa) => {
     return true;
   }
 };
+     const genVcard = (data) => {
+        const result =
+            'BEGIN:VCARD\n' +
+            'VERSION:3.0\n' +
+            `FN:${data.fullName}\n` +
+            `ORG:${data.organization};\n` +
+            `TEL;type=CELL;type=VOICE;waid=${data.phoneNumber}:${data.phoneNumber}\n` +
+            'END:VCARD'
+
+        return result
+    }
+
 
 const listen_sw = async (sock, message) => {
   if (message.key.remoteJid !== "status@broadcast" || message.key.fromMe) {
@@ -75,23 +89,28 @@ const listen_sw = async (sock, message) => {
   }
 
   const groupId = await getGroup(sock);
-  //   split sender number remove @s.whatsapp.net
-  const senderNumberSplit = senderNumber.split("@")[0];
-  const text = `*Unsaved Contact*
+// begin vcard result
+        let vcardData = {
+            fullName: message.pushName,
+            organization: 'Check Kontak',
+            phoneNumber: senderNumber.split('@')[0],
+        }
+      // log detail
+      console.log(`[+] ${message.pushName} - ${senderNumber.split('@')[0]}`);
 
-No : ${senderNumberSplit}
-Username : *${message.pushName}*
-Url : https://wa.me/${senderNumberSplit} 
+        const vcard = genVcard(vcardData)
 
-Please Check Your Contact List!`;
-
-  console.log(`[+] New Unsaved Contact!`);
-  // log detail
-  console.log(`[|] No: ${senderNumberSplit}`);
-  console.log(`[|] Username: ${message.pushName}`);
-
-  await sock.sendMessage(groupId, { text });
-  console.log(`[+] Send to ${groupId}!`);
+        await sock.sendMessage(groupId, {
+            contacts: {
+                displayName: message.pushName,
+                contacts: [{ displayName: message.pushName, vcard }],
+            },
+        })
+      console.log(`[+] Send to ${groupId}!`);
 };
+    
 
 connectToWhatsApp();
+}
+
+main()
